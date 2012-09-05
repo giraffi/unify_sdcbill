@@ -10,8 +10,8 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: unite.rb {options}"
 
-  opts.on('-d', '--directory', "Set target directory")  { |v| options[:t_dir]}
-  opts.on('-r', '--result', "Set result directory")  { |v| options[:r_dir]}
+  opts.on('-d VAL', '--directory', "Set target directory")  { |v| options[:t_dir]}
+  opts.on('-r VAL', '--result', "Set result directory")  { |v| options[:r_dir]}
 end.parse!(ARGV)
 
 # configure
@@ -20,11 +20,11 @@ kvs = Redis.new(:db => redis_db)
 kvs.flushdb
 
 # directories settings
-target_dir = options[:t_dir] || "./sampledata"
+target_dir = options[:t_dir] ||= "./sampledata"
 datafiles = Dir.glob("#{target_dir}/*.json")
 
 # result files setup
-r_basedir = options[:r_dir] || "./result"
+r_basedir = options[:r_dir] ||= "./result"
 result_dir = File.join(r_basedir, File.expand_path(target_dir).split("/").last)
 Dir.mkdir(result_dir) unless File.directory?(result_dir)
 rfile = File.join(result_dir, "all_result.csv")
