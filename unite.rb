@@ -10,6 +10,7 @@ redis_db = 2
 
 
 rfile = "result/all_result.csv"
+simplefile = "result/simple_summary.csv" 
 
 kvs = Redis.new(:db => redis_db)
 kvs.flushdb
@@ -44,5 +45,16 @@ CSV.open(rfile, "wb",:force_quotes => true) do |writer|
       received_delta = kvs.hget(k_owner, "#{zone_uuid}/#{zone_nif}/bytes_received_delta").to_i / 1024 / 1024
       writer << [k_owner, zone_uuid, zone_nif, sent_delta, received_delta]
     end
+  end
+end
+
+
+csvh = ["owner_uuid", "AllTraffic_by_Gigabytes"]
+
+CSV.open(simplefile, "wb",:force_quotes => true) do |writer|
+  writer << csvh
+  owner_ids.map do |k_owner|
+    traffics = kvs.hvals(k_owner).inject(0) {|sum, i| sum + i.to_i }
+    writer << [k_owner, (traffics.to_f / 1024 / 1024 / 1024).round(2)]
   end
 end
