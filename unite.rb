@@ -21,7 +21,7 @@ kvs.flushdb
 
 # directories settings
 target_dir = options[:t_dir] ||= "./sampledata"
-datafiles = Dir.glob("#{target_dir}/*.json")
+datafiles = Dir.glob(File.join(target_dir, "/*.json")
 
 # result files setup
 r_basedir = options[:r_dir] ||= "./result"
