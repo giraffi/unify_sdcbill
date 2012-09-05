@@ -1,22 +1,36 @@
 #!/usr/bin/env ruby
 #  coding: utf-8
 require 'bundler/setup'
+require 'optparse'
 require 'csv'
 require 'json'
 require 'redis'
 
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: unite.rb {options}"
+
+  opts.on('-d', '--directory', "Set target directory")  { |v| options[:t_dir]}
+  opts.on('-r', '--result', "Set result directory")  { |v| options[:r_dir]}
+end.parse!(ARGV)
+
 # configure
 redis_db = 2
-
-
-rfile = "result/all_result.csv"
-simplefile = "result/simple_summary.csv" 
-
 kvs = Redis.new(:db => redis_db)
 kvs.flushdb
 
-datafiles = Dir.glob("./sampledata/*.json")
+# directories settings
+target_dir = options[:t_dir] || "./sampledata"
+datafiles = Dir.glob("#{target_dir}/*.json")
 
+# result files setup
+r_basedir = options[:r_dir] || "./result"
+result_dir = File.join(r_basedir, File.expand_path(target_dir).split("/").last)
+Dir.mkdir(result_dir) unless File.directory?(result_dir)
+rfile = File.join(result_dir, "all_result.csv")
+simplefile = File.join(result_dir, "simple_summary.csv")
+
+## map all data to redis hashkeys
 datafiles.each do |datafile|
   billing_by_owners = JSON.load(File.read(datafile))
   billing_by_owners.map do |owner, machines|
@@ -34,6 +48,7 @@ end
 csvh = ["owner_uuid", "zone_uuid","net_if","Megabytes_sent_delta","Megabytes_received_delta"]
 owner_ids = kvs.keys("????????-????-????-????-????????????")
 
+# all data to csv
 CSV.open(rfile, "wb",:force_quotes => true) do |writer|
   writer << csvh
   owner_ids.each do |k_owner|
