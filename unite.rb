@@ -10,8 +10,8 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: unite.rb {options}"
 
-  opts.on('-d VAL', '--directory', "Set target directory")  { |v| options[:t_dir]}
-  opts.on('-r VAL', '--result', "Set result directory")  { |v| options[:r_dir]}
+  opts.on('-d VAL', '--directory', "Set target directory")  { |v| options[:t_dir] = v }
+  opts.on('-r VAL', '--result', "Set result directory")  { |v| options[:r_dir] = v }
 end.parse!(ARGV)
 
 # configure
