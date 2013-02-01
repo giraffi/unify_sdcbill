@@ -60,8 +60,8 @@ error_exit "target directory is Empty. Exit." if datafiles == []
 r_basedir = options[:r_dir] ||= "./result"
 result_dir = File.join(r_basedir, File.expand_path(target_dir).split("/").last)
 Dir.mkdir(result_dir) unless File.directory?(result_dir)
-rfile = File.join(result_dir, "all_result.csv")
-simplefile = File.join(result_dir, "simple_summary.csv")
+rfile = File.join(result_dir, "all_result_#{File.expand_path(target_dir).split("/").last}.csv")
+simplefile = File.join(result_dir, "simple_summary_#{File.expand_path(target_dir).split("/").last}.csv")
 
 ## map all data to redis hashkeys
 def map_to_rediis(kvs,datafiles)
@@ -76,7 +76,7 @@ def map_to_rediis(kvs,datafiles)
             %w(bytes_sent_delta bytes_received_delta).each do |w|
               kvs.hincrby(owner, "#{machine}/#{netx}/#{w}", machine_data["metering"]["network"][netx][w])
             end
-          end
+          end if machine_data["metering"]
         end
       rescue => e
         @logger.error e.message
